@@ -515,13 +515,29 @@ def generate_html(all_questions, output_file):
         }}
 
         @media (max-width: 640px) {{
+            body {{
+                padding: 10px;
+            }}
+            
+            header {{
+                padding: 20px 10px;
+            }}
+            
             header h1 {{
-                font-size: 1.8rem;
+                font-size: 1.5rem;
+            }}
+            
+            header p {{
+                font-size: 0.95rem;
             }}
             
             .card {{
-                padding: 24px;
-                border-radius: 20px;
+                padding: 20px;
+                border-radius: 16px;
+            }}
+            
+            .setup-title {{
+                font-size: 1.2rem;
             }}
             
             .nav-buttons {{
@@ -530,11 +546,37 @@ def generate_html(all_questions, output_file):
             
             .btn {{
                 width: 100%;
+                padding: 16px 20px;
+                font-size: 1rem;
             }}
             
             .stats-bar {{
                 flex-direction: column;
+                gap: 8px;
+                text-align: center;
+                padding: 12px 16px;
+            }}
+            
+            .question-text {{
+                font-size: 1.05rem;
+            }}
+            
+            .option-item {{
+                padding: 14px 16px;
+            }}
+            
+            .result-score {{
+                font-size: 3rem;
+            }}
+            
+            .result-actions {{
+                flex-direction: column;
                 gap: 12px;
+            }}
+            
+            .q-item-header {{
+                flex-direction: column;
+                gap: 8px;
                 text-align: center;
             }}
         }}
@@ -610,8 +652,15 @@ def generate_html(all_questions, output_file):
         </div>
         
         <div class="question-list">
-            <h3 class="question-list-title">Chi tiết bài làm</h3>
+            <h3 class="question-list-title">Chi tiet bai lam</h3>
             <div id="question-list"></div>
+        </div>
+        
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
+            <button id="redo-wrong-btn-bottom" class="btn btn-warning btn-block" onclick="redoWrongQuestions()" style="display: none;">
+                Lam lai cau sai
+            </button>
+            <button class="btn btn-primary btn-block" onclick="resetQuiz()">Chon cap do khac</button>
         </div>
     </div>
 
@@ -647,12 +696,15 @@ def generate_html(all_questions, output_file):
 
     <!-- Quick Review Screen -->
     <div id="quick-review-screen" class="card card-hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2 class="setup-title" style="margin: 0;">Chế Độ Ôn Nhanh</h2>
-            <button class="btn btn-secondary" onclick="resetQuiz()">Quay lại</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <h2 class="setup-title" style="margin: 0;">Che Do On Nhanh</h2>
+            <button class="btn btn-secondary" onclick="resetQuiz()">Quay lai</button>
         </div>
-        <p style="color: var(--text-medium); margin-bottom: 20px;">Xem tất cả câu hỏi và đáp án đúng để ôn tập nhanh.</p>
+        <p style="color: var(--text-medium); margin-bottom: 20px;">Xem tat ca cau hoi va dap an dung de on tap nhanh.</p>
         <div id="quick-review-list"></div>
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--border); text-align: center;">
+            <button class="btn btn-primary btn-block" onclick="resetQuiz()">Chon cap do khac</button>
+        </div>
     </div>
 </div>
 
@@ -715,15 +767,15 @@ def generate_html(all_questions, output_file):
         '1': '0107',
         '1-1': '0107',
         '1-2': '0107',
-        '2': '0107',
-        '2-1': '0107',
-        '2-2': '0107',
-        '2-3': '0107',
-        '3': '0107',
-        '3-1': '0107',
-        '3-2': '0107',
-        '4': '0107',
-        '5': '0107'
+        '2': '0107nger',
+        '2-1': '0107nger',
+        '2-2': '0107nger',
+        '2-3': '0107nger',
+        '3': '0107nger',
+        '3-1': '0107nger',
+        '3-2': '0107nger',
+        '4': '0107nger',
+        '5': '0107nger'
     }};
 
     function startQuiz() {{
@@ -900,11 +952,15 @@ def generate_html(all_questions, output_file):
         }}).length;
         
         const redoBtn = document.getElementById('redo-wrong-btn');
+        const redoBtnBottom = document.getElementById('redo-wrong-btn-bottom');
         if (wrongCount > 0) {{
             redoBtn.style.display = 'inline-flex';
-            redoBtn.innerText = 'Làm lại ' + wrongCount + ' câu sai';
+            redoBtn.innerText = 'Lam lai ' + wrongCount + ' cau sai';
+            redoBtnBottom.style.display = 'inline-flex';
+            redoBtnBottom.innerText = 'Lam lai ' + wrongCount + ' cau sai';
         }} else {{
             redoBtn.style.display = 'none';
+            redoBtnBottom.style.display = 'none';
         }}
         
         renderQuestionList();
