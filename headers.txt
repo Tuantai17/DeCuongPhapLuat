@@ -1,0 +1,5 @@
+28: 1.CẤP ĐỘ 1 - Nhóm câu hỏi dễ (áp dụng kiến thức)
+499: 2.CẤP ĐỘ 2- Nhóm câu hỏi trung bình (có suy luận tổng hợp)
+1158: 3.CẤP ĐỘ 3 – Nhóm câu hỏi Khá (mức độ suy luận tƣơng đối cao)
+1564: 4.CẤP ĐỘ 4 – Nhóm câu hỏi Khó (mức độ suy luận và tổng hợp cao)
+1843: 5.CẤP ĐỘ 5 - Nhóm câu hỏi Rất khó (mức độ suy luận và tổng hợp rất cao)
