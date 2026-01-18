@@ -513,6 +513,53 @@ def generate_html(all_questions, output_file):
             color: #92400e;
         }}
 
+        .search-wrapper {{
+            margin-bottom: 16px;
+        }}
+        
+        .search-input {{
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }}
+        
+        .search-input:focus {{
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }}
+        
+        .filter-btn {{
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            background: white;
+            color: var(--text-medium);
+            cursor: pointer;
+            transition: all 0.2s;
+        }}
+        
+        .filter-btn:hover {{
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }}
+        
+        .filter-btn.active {{
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }}
+
+
         @media (max-width: 640px) {{
             body {{
                 padding: 10px;
@@ -652,6 +699,15 @@ def generate_html(all_questions, output_file):
         
         <div class="question-list">
             <h3 class="question-list-title">Chi tiet bai lam</h3>
+            <div class="search-wrapper">
+                <input type="text" id="search-input" class="search-input" placeholder="Tim kiem cau hoi..." oninput="filterQuestions()">
+            </div>
+            <div class="filter-buttons" style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="filter-btn active" onclick="filterByStatus('all')">Tat ca</button>
+                <button class="filter-btn" onclick="filterByStatus('correct')">Dung</button>
+                <button class="filter-btn" onclick="filterByStatus('wrong')">Sai</button>
+                <button class="filter-btn" onclick="filterByStatus('unanswered')">Chua tra loi</button>
+            </div>
             <div id="question-list"></div>
         </div>
         
@@ -1026,6 +1082,51 @@ def generate_html(all_questions, output_file):
         
         container.innerHTML = html;
     }}
+
+    let currentStatusFilter = 'all';
+    
+    function filterQuestions() {{
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const items = document.querySelectorAll('.q-item');
+        
+        items.forEach(item => {{
+            const text = item.innerText.toLowerCase();
+            const statusMatch = checkStatusFilter(item);
+            
+            if (text.includes(searchTerm) && statusMatch) {{
+                item.style.display = 'block';
+            }} else {{
+                item.style.display = 'none';
+            }}
+        }});
+    }}
+    
+    function checkStatusFilter(item) {{
+        if (currentStatusFilter === 'all') return true;
+        
+        const header = item.querySelector('.q-item-header');
+        if (!header) return true;
+        
+        if (currentStatusFilter === 'correct' && header.classList.contains('correct')) return true;
+        if (currentStatusFilter === 'wrong' && header.classList.contains('wrong')) return true;
+        if (currentStatusFilter === 'unanswered' && header.classList.contains('unanswered')) return true;
+        
+        return false;
+    }}
+    
+    function filterByStatus(status) {{
+        currentStatusFilter = status;
+        
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {{
+            btn.classList.remove('active');
+        }});
+        event.target.classList.add('active');
+        
+        // Re-apply filter
+        filterQuestions();
+    }}
+
 
     function updateStats() {{
         document.getElementById('current-q-num').innerText = currentIndex + 1;
