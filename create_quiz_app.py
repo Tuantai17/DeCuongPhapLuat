@@ -502,7 +502,6 @@ def generate_html(all_questions, output_file):
             background: var(--error-light);
             border-color: var(--error);
             color: #991b1b;
-            text-decoration: line-through;
         }}
         
         .answer-summary {{

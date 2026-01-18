@@ -120,7 +120,8 @@ B. 05 tháng
 C. 04 tháng
 D. 07 tháng
 
-**Câu 21.** Người lao động chưa thành niên là người: A. Dưới 18 tuổi.
+**Câu 21.** Người lao động chưa thành niên là người:
+A. Dưới 18 tuổi.
 B. Dưới 16 tuổi.
 C. Dưới 15 tuổi.
 D. Dưới 17 tuổi.
@@ -420,7 +421,8 @@ D. Tất cả đều đúng
 **Câu 71.** Luật Phòng, chống tham nhũng quy định về hành vi tham nhũng là hành vi:
 A. Trộm cắp tài sản công của cá nhân, tổ chức.
 B. Vượt quá thẩm quyền trong khi thi hành công vụ.
-C. Của người có chức vụ, quyền hạn đã lợi dụng chức vụ, quyền hạn đó vì vụ lợi. D. Của mọi cá nhân, tổ chức.
+C. Của người có chức vụ, quyền hạn đã lợi dụng chức vụ, quyền hạn đó vì vụ lợi.
+D. Của mọi cá nhân, tổ chức.
 
 **Câu 72.** Theo Luật Phòng, chống tham nhũng, đối tượng nào sau đây không phải là người có chức vụ, quyền hạn?
 A. Cán bộ, công chức, viên chức
