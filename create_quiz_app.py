@@ -771,6 +771,77 @@ def generate_html(all_questions, output_file):
     let userAnswers = {{}};
     let isReviewMode = false;
     let shuffledOptionsMap = {{}};
+    let currentLevelSelection = '';
+
+    // Local Storage functions for saving progress
+    function saveProgress() {{
+        const progress = {{
+            currentQuestions: currentQuestions,
+            currentIndex: currentIndex,
+            score: score,
+            userAnswers: userAnswers,
+            shuffledOptionsMap: shuffledOptionsMap,
+            currentLevelSelection: currentLevelSelection,
+            timestamp: Date.now()
+        }};
+        localStorage.setItem('quizProgress', JSON.stringify(progress));
+    }}
+    
+    function loadProgress() {{
+        const saved = localStorage.getItem('quizProgress');
+        if (saved) {{
+            const progress = JSON.parse(saved);
+            // Check if progress is less than 24 hours old
+            const hoursDiff = (Date.now() - progress.timestamp) / (1000 * 60 * 60);
+            if (hoursDiff < 24) {{
+                return progress;
+            }}
+        }}
+        return null;
+    }}
+    
+    function clearProgress() {{
+        localStorage.removeItem('quizProgress');
+    }}
+    
+    function checkSavedProgress() {{
+        const progress = loadProgress();
+        if (progress && progress.currentQuestions.length > 0) {{
+            const answeredCount = Object.keys(progress.userAnswers).length;
+            if (answeredCount > 0 && answeredCount < progress.currentQuestions.length) {{
+                if (confirm('Ban co bai lam chua hoan thanh (' + answeredCount + '/' + progress.currentQuestions.length + ' cau). Ban co muon tiep tuc khong?')) {{
+                    restoreProgress(progress);
+                    return true;
+                }} else {{
+                    clearProgress();
+                }}
+            }}
+        }}
+        return false;
+    }}
+    
+    function restoreProgress(progress) {{
+        currentQuestions = progress.currentQuestions;
+        currentIndex = progress.currentIndex;
+        score = progress.score;
+        userAnswers = progress.userAnswers;
+        shuffledOptionsMap = progress.shuffledOptionsMap;
+        currentLevelSelection = progress.currentLevelSelection;
+        isReviewMode = false;
+        
+        document.getElementById('setup-screen').classList.add('card-hidden');
+        document.getElementById('result-screen').classList.add('card-hidden');
+        document.getElementById('quiz-screen').classList.remove('card-hidden');
+        document.getElementById('submit-btn').style.display = 'inline-flex';
+        
+        updateStats();
+        renderQuestion();
+    }}
+    
+    // Check for saved progress on page load
+    window.onload = function() {{
+        checkSavedProgress();
+    }};
 
     function shuffleArray(array) {{
         const newArr = [...array];
@@ -821,10 +892,10 @@ def generate_html(all_questions, output_file):
         '1': '0107',
         '1-1': '0107',
         '1-2': '0107',
-        '2': '0107nger',
-        '2-1': '0107nger',
-        '2-2': '0107nger',
-        '2-3': '0107nger',
+        '2': '0107',
+        '2-1': '0107',
+        '2-2': '0107',
+        '2-3': '0107',
         '3': '0107nger',
         '3-1': '0107nger',
         '3-2': '0107nger',
@@ -861,6 +932,7 @@ def generate_html(all_questions, output_file):
         userAnswers = {{}};
         isReviewMode = false;
         shuffledOptionsMap = {{}};
+        currentLevelSelection = levelSelect;
         
         currentQuestions.forEach(q => {{
             const uniqueId = q.id + '_' + q.level;
@@ -877,6 +949,7 @@ def generate_html(all_questions, output_file):
     }}
     
     function resetQuiz() {{
+        clearProgress();
         document.getElementById('result-screen').classList.add('card-hidden');
         document.getElementById('quiz-screen').classList.add('card-hidden');
         document.getElementById('quick-review-screen').classList.add('card-hidden');
@@ -991,6 +1064,9 @@ def generate_html(all_questions, output_file):
     }}
     
     function showResults() {{
+        // Clear saved progress when quiz is completed
+        clearProgress();
+        
         document.getElementById('quiz-screen').classList.add('card-hidden');
         document.getElementById('result-screen').classList.remove('card-hidden');
         
@@ -1202,6 +1278,9 @@ def generate_html(all_questions, output_file):
         if (key === q.correct_answer) {{
             score++;
         }}
+        
+        // Save progress after each answer
+        saveProgress();
         
         updateStats();
         renderQuestion();
