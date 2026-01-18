@@ -376,7 +376,6 @@ def generate_html(all_questions, output_file):
         
         .option-item.wrong .option-text {{
             color: #991b1b;
-            text-decoration: line-through;
         }}
 
         /* Navigation */
