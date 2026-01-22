@@ -318,7 +318,8 @@ B. Cố ý gián tiếp.
 C. Vô ý vì quá tự tin.
 D. Vô ý do cẩu thả
 
-**Câu 54.** Loại lỗi nào sau đây khi thực hiện, người phạm tội không nhận thức được hậu quả nguy hiểm cho xã hội? A. Cố ý trực tiếp.
+**Câu 54.** Loại lỗi nào sau đây khi thực hiện, người phạm tội không nhận thức được hậu quả nguy hiểm cho xã hội?
+A. Cố ý trực tiếp.
 B. Cố ý gián tiếp.
 C. Vô ý vì quá tự tin.
 D. Vô ý do cẩu thả
