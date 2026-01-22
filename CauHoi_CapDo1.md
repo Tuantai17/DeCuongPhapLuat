@@ -276,7 +276,8 @@ B. 62
 C. 63
 D. 64
 
-**Câu 47.** Phương pháp điều chỉnh của ngành luật hình sự là: A. Mệnh lệnh, quyền uy.
+**Câu 47.** Phương pháp điều chỉnh của ngành luật hình sự là:
+A. Mệnh lệnh, quyền uy.
 B. Xác lập nguyên tắc chung.
 C. Bình đẳng, thỏa thuận.
 D. Tất cả đều đúng.
