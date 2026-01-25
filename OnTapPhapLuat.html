@@ -588,7 +588,7 @@
         <div class="select-wrapper">
             <label class="select-label">Cấp độ câu hỏi:</label>
             <select id="level-select" class="custom-select">
-                <option value="exam">★ THI THỬ (60 Câu - Theo Ma Trận) ★</option>
+                <option value="exam">★ THI THỬ (50 Câu - Theo Ma Trận) ★</option>
                 <option value="all"> Tất cả (330 câu)</option>
                 <optgroup label="CẤP ĐỘ 1 - DỄ">
                     <option value="1"> Đầy đủ Cấp độ 1 (78 câu)</option>
@@ -676,6 +676,10 @@
             <div class="stat-item">
                 <span>Điểm</span>
                 <span class="stat-value" id="score">0</span>
+            </div>
+            <div class="stat-item" id="timer-stat" style="display: none;">
+                <span>Thời gian</span>
+                <span class="stat-value" id="timer-display">60:00</span>
             </div>
         </div>
         
@@ -865,17 +869,17 @@
         } else if (selection === '3-2') {
             filtered = allQuestions.filter(q => q.level === 3 && q.id >= 36 && q.id <= 70);
         } else if (selection === 'exam') {
-            // Distribution based on matrix: L1: 31.33% (~19), L2: 25.33% (~15), L3: 19.67% (~12), L4: 14.67% (~9), L5: 9% (~5)
+            // Distribution based on matrix: L1: 15 (30%), L2: 12 (24%), L3: 13 (26%), L4: 5 (10%), L5: 5 (10%). Total: 50.
             const getRandom = (lvl, count) => {
                 const pool = allQuestions.filter(q => q.level === lvl);
                 return shuffleArray(pool).slice(0, count);
             };
             
             filtered = [
-                ...getRandom(1, 19),
-                ...getRandom(2, 15),
-                ...getRandom(3, 12),
-                ...getRandom(4, 9),
+                ...getRandom(1, 15),
+                ...getRandom(2, 12),
+                ...getRandom(3, 13),
+                ...getRandom(4, 5),
                 ...getRandom(5, 5)
             ];
         }
@@ -900,6 +904,34 @@
         '4': '0107',
         '5': '0107'
     };
+
+    let timerInterval;
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('timer-display');
+        
+        // Initial display
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        display.textContent = minutes + ":" + seconds;
+
+        timerInterval = setInterval(function () {
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+                alert("Đã hết thời gian làm bài!");
+                return;
+            }
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.textContent = minutes + ":" + seconds;
+        }, 1000);
+    }
 
     function startQuiz() {
         const levelSelect = document.getElementById('level-select').value;
@@ -937,6 +969,16 @@
         currentLevelSelection = levelSelect;
         
         prepareShuffledData(currentQuestions);
+
+        // Timer Logic
+        if (timerInterval) clearInterval(timerInterval);
+        const timerStat = document.getElementById('timer-stat');
+        if (levelSelect === 'exam') {
+             timerStat.style.display = 'flex';
+             startTimer(60 * 60); // 60 minutes
+        } else {
+             timerStat.style.display = 'none';
+        }
         
         document.getElementById('setup-screen').classList.add('card-hidden');
         document.getElementById('result-screen').classList.add('card-hidden');
@@ -948,6 +990,7 @@
     }
     
     function resetQuiz() {
+        if (timerInterval) clearInterval(timerInterval);
         clearProgress();
         document.getElementById('result-screen').classList.add('card-hidden');
         document.getElementById('quiz-screen').classList.add('card-hidden');
@@ -1052,7 +1095,7 @@
     }
     
     function finishQuiz() {
-        // Cho phep nop bai ngay ca khi chua lam xong
+        if (timerInterval) clearInterval(timerInterval);
         showResults();
     }
     
@@ -1242,7 +1285,9 @@
         optionsHtml += '</div>';
 
         let html = '<div class="question-header">';
-        html += '<span class="question-badge">Cấp độ ' + q.level + '</span>';
+        if (currentLevelSelection !== 'exam') {
+            html += '<span class="question-badge">Cấp độ ' + q.level + '</span>';
+        }
         html += '<span class="question-id">Câu ' + q.id + '</span>';
         html += '</div>';
         html += '<div class="question-text">' + q.question + '</div>';
