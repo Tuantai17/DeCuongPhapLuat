@@ -320,8 +320,8 @@ D. Người lao động chết
 
 **Câu 54.** Chủ thể nào sau đây có thẩm quyền tuyên bố hợp đồng lao động vô hiệu?
 A. Tổ chức công đoàn
-A. Thanh tra lao động, Toà án nhân dân
-B. Người lao động
+B. Thanh tra lao động, Toà án nhân dân
+C. Người lao động
 D. Người sử dụng lao động
 
 **Câu 55.** Sự bảo đảm thay thế hoặc bù đắp một phần thu nhập của người lao động khi họ bị giảm hoặc mất thu nhập do ốm đau, thai sản, tai nạn lao động, bệnh nghề nghiệp, thất nghiệp, hết tuổi lao động hoặc chết, trên cơ sở đóng vào quỹ bảo hiểm xã hội thì được gọi là gì?
@@ -655,14 +655,16 @@ C. Cả A và B đều đúng
 D. Cả A và B đều sai
 
 ---
+
 ## ĐÁP ÁN
+
 1.B 2.D 3.A 4.C 5.A 6.D 7.C 8.A 9.A 10.A
 
 11.C 12.A 13.D 14.B 15.C 16.C 17.D 18.D 19.A 20.D
 
 21.D 22.D 23.B 24.D 25.D 26.B 27.D 28.B 29.C 30.D
 
-31.D 32.D 33.A 34.A 35.D 36.D 37.C 38.C 39.C 40.A
+31.D 32.D 33.A 34.A 35.D 36.D 37.D 38.C 39.C 40.A
 
 41.D 42.C 43.C 44.D 45.D 46.A 47.A 48.D 49.C 50.C
 
