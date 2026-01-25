@@ -708,7 +708,7 @@
         </div>
     </div>
     <footer class="footer">
-         NguyenTuanTai
+         @
     </footer>
 </div>
 
@@ -721,6 +721,7 @@
     let userAnswers = {};
     let isReviewMode = false;
     let shuffledOptionsMap = {};
+    let correctAnswersMap = {};
     let currentLevelSelection = '';
 
     // Local Storage functions for saving progress
@@ -731,6 +732,7 @@
             score: score,
             userAnswers: userAnswers,
             shuffledOptionsMap: shuffledOptionsMap,
+            correctAnswersMap: correctAnswersMap,
             currentLevelSelection: currentLevelSelection,
             timestamp: Date.now()
         };
@@ -776,6 +778,7 @@
         score = progress.score;
         userAnswers = progress.userAnswers;
         shuffledOptionsMap = progress.shuffledOptionsMap;
+        correctAnswersMap = progress.correctAnswersMap || {};
         currentLevelSelection = progress.currentLevelSelection;
         isReviewMode = false;
         
@@ -800,6 +803,35 @@
             [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
         }
         return newArr;
+    }
+
+    function prepareShuffledData(questions) {
+        const keys = ['A', 'B', 'C', 'D'];
+        questions.forEach(q => {
+            const uniqueId = q.id + '_' + q.level;
+            // Deep copy options to avoid mutating original data
+            let optionsCopy = JSON.parse(JSON.stringify(q.options));
+            
+            // Find correct answer text
+            const correctOpt = q.options.find(opt => opt.key === q.correct_answer);
+            const correctText = correctOpt ? correctOpt.text : "";
+            
+            // Shuffle options
+            let shuffled = shuffleArray(optionsCopy);
+            
+            // Re-assign keys and find new correct answer key
+            let newCorrectKey = q.correct_answer;
+            
+            shuffled.forEach((opt, index) => {
+                opt.key = keys[index];
+                if (opt.text === correctText) {
+                    newCorrectKey = opt.key;
+                }
+            });
+            
+            shuffledOptionsMap[uniqueId] = shuffled;
+            correctAnswersMap[uniqueId] = newCorrectKey;
+        });
     }
 
     function getFilteredQuestions(selection) {
@@ -877,17 +909,18 @@
             return;
         }
 
+        // Shuffle questions
+        currentQuestions = shuffleArray(currentQuestions);
+
         currentIndex = 0;
         score = 0;
         userAnswers = {};
         isReviewMode = false;
         shuffledOptionsMap = {};
+        correctAnswersMap = {};
         currentLevelSelection = levelSelect;
         
-        currentQuestions.forEach(q => {
-            const uniqueId = q.id + '_' + q.level;
-            shuffledOptionsMap[uniqueId] = shuffleArray(q.options);
-        });
+        prepareShuffledData(currentQuestions);
         
         document.getElementById('setup-screen').classList.add('card-hidden');
         document.getElementById('result-screen').classList.add('card-hidden');
@@ -989,11 +1022,9 @@
         userAnswers = {};
         isReviewMode = false;
         shuffledOptionsMap = {};
+        correctAnswersMap = {};
         
-        currentQuestions.forEach(q => {
-            const uniqueId = q.id + '_' + q.level;
-            shuffledOptionsMap[uniqueId] = shuffleArray(q.options);
-        });
+        prepareShuffledData(currentQuestions);
         
         document.getElementById('result-screen').classList.add('card-hidden');
         document.getElementById('quiz-screen').classList.remove('card-hidden');
@@ -1004,12 +1035,7 @@
     }
     
     function finishQuiz() {
-        const unanswered = currentQuestions.length - Object.keys(userAnswers).length;
-        if (unanswered > 0) {
-            if (!confirm('Bạn còn ' + unanswered + ' câu chưa trả lời.\nBạn có chắc chắn muốn nộp bài không?')) {
-                return;
-            }
-        }
+        // Cho phep nop bai ngay ca khi chua lam xong
         showResults();
     }
     
@@ -1028,7 +1054,8 @@
         const wrongCount = currentQuestions.filter(q => {
             const uniqueId = q.id + '_' + q.level;
             const userAns = userAnswers[uniqueId];
-            return userAns && userAns !== q.correct_answer;
+            const correctAns = correctAnswersMap[uniqueId] || q.correct_answer;
+            return userAns && userAns !== correctAns;
         }).length;
         
         const redoBtn = document.getElementById('redo-wrong-btn');
@@ -1058,7 +1085,8 @@
             let statusText = 'Chưa trả lời';
             
             if (userAns) {
-                if (userAns === q.correct_answer) {
+                const correctAns = correctAnswersMap[uniqueId] || q.correct_answer;
+                if (userAns === correctAns) {
                     statusClass = 'correct';
                     statusText = 'Đúng';
                 } else {
@@ -1077,27 +1105,29 @@
             html += '<div class="q-item-question">' + q.question + '</div>';
             
             html += '<div class="q-item-options">';
-            q.options.forEach(opt => {
+            const shuffledOptions = shuffledOptionsMap[uniqueId] || q.options;
+            shuffledOptions.forEach(opt => {
                 let optClass = 'q-item-option';
+                const correctAns = correctAnswersMap[uniqueId] || q.correct_answer;
                 
-                if (opt.key === q.correct_answer) {
+                if (opt.key === correctAns) {
                     optClass += ' correct-answer';
-                } else if (userAns && opt.key === userAns && userAns !== q.correct_answer) {
+                } else if (userAns && opt.key === userAns && userAns !== correctAns) {
                     optClass += ' user-wrong';
                 }
                 
                 html += '<div class="' + optClass + '">';
                 html += '<strong>' + opt.key + '.</strong> ' + opt.text;
-                if (opt.key === q.correct_answer) {
+                if (opt.key === correctAns) {
                     html += '';
                 }
                 html += '</div>';
             });
             html += '</div>';
             
-            if (userAns && userAns !== q.correct_answer) {
+            if (userAns && userAns !== (correctAnswersMap[uniqueId] || q.correct_answer)) {
                 html += '<div class="answer-summary">';
-                html += '<strong>Bạn chọn:</strong> ' + userAns + ' → <strong>Đáp án đúng:</strong> ' + q.correct_answer;
+                html += '<strong>Bạn chọn:</strong> ' + userAns + ' → <strong>Đáp án đúng:</strong> ' + (correctAnswersMap[uniqueId] || q.correct_answer);
                 html += '</div>';
             }
             
@@ -1168,6 +1198,7 @@
         const isAnswered = !!answeredKey;
         
         const shuffledOptions = shuffledOptionsMap[uniqueId] || q.options;
+        const currentCorrectAnswer = correctAnswersMap[uniqueId] || q.correct_answer;
 
         let optionsHtml = '<div class="options-list">';
         
@@ -1175,9 +1206,9 @@
             let className = 'option-item';
             
             if (isAnswered) {
-                if (opt.key === q.correct_answer) {
+                if (opt.key === currentCorrectAnswer) {
                     className += ' correct';
-                } else if (opt.key === answeredKey && opt.key !== q.correct_answer) {
+                } else if (opt.key === answeredKey && opt.key !== currentCorrectAnswer) {
                     className += ' wrong';
                 }
             }
@@ -1225,7 +1256,9 @@
         
         userAnswers[uniqueId] = key;
         
-        if (key === q.correct_answer) {
+        const currentCorrectAnswer = correctAnswersMap[uniqueId] || q.correct_answer;
+        
+        if (key === currentCorrectAnswer) {
             score++;
         }
         
