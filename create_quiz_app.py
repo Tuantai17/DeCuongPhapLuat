@@ -3,6 +3,9 @@ import os
 import re
 import json
 
+# Define the base path
+BASE_PATH = r'd:\DeCuongPhapLuat'
+
 def parse_markdown_file(filepath, level):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -70,7 +73,7 @@ def generate_html(all_questions, output_file):
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="On Tap Phap Luat">
     <meta name="theme-color" content="#667eea">
-    <title>On Tap Phap Luat Dai Cuong</title>
+    <title>On Tap Phap Luat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {{
@@ -558,6 +561,15 @@ def generate_html(all_questions, output_file):
             color: white;
         }}
 
+        .footer {{
+            text-align: center;
+            padding: 24px;
+            margin-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }}
+
 
         @media (max-width: 640px) {{
             body {{
@@ -641,6 +653,7 @@ def generate_html(all_questions, output_file):
         <div class="select-wrapper">
             <label class="select-label">Cấp độ câu hỏi:</label>
             <select id="level-select" class="custom-select">
+                <option value="exam">★ THI THỬ (50 Câu Ngẫu Nhiên) ★</option>
                 <option value="all"> Tất cả (330 câu)</option>
                 <optgroup label="CẤP ĐỘ 1 - DỄ">
                     <option value="1"> Đầy đủ Cấp độ 1 (78 câu)</option>
@@ -760,6 +773,9 @@ def generate_html(all_questions, output_file):
             <button class="btn btn-primary btn-block" onclick="resetQuiz()">Chon cap do khac</button>
         </div>
     </div>
+    <footer class="footer">
+         Sai tự nhớ khắc nhớ dai
+    </footer>
 </div>
 
 <script>
@@ -770,17 +786,15 @@ def generate_html(all_questions, output_file):
     let score = 0;
     let userAnswers = {{}};
     let isReviewMode = false;
-    let shuffledOptionsMap = {{}};
     let currentLevelSelection = '';
 
-    // Local Storage functions for saving progress
+    // Local Storage functions
     function saveProgress() {{
         const progress = {{
             currentQuestions: currentQuestions,
             currentIndex: currentIndex,
             score: score,
             userAnswers: userAnswers,
-            shuffledOptionsMap: shuffledOptionsMap,
             currentLevelSelection: currentLevelSelection,
             timestamp: Date.now()
         }};
@@ -791,7 +805,6 @@ def generate_html(all_questions, output_file):
         const saved = localStorage.getItem('quizProgress');
         if (saved) {{
             const progress = JSON.parse(saved);
-            // Check if progress is less than 24 hours old
             const hoursDiff = (Date.now() - progress.timestamp) / (1000 * 60 * 60);
             if (hoursDiff < 24) {{
                 return progress;
@@ -825,7 +838,6 @@ def generate_html(all_questions, output_file):
         currentIndex = progress.currentIndex;
         score = progress.score;
         userAnswers = progress.userAnswers;
-        shuffledOptionsMap = progress.shuffledOptionsMap;
         currentLevelSelection = progress.currentLevelSelection;
         isReviewMode = false;
         
@@ -838,7 +850,6 @@ def generate_html(all_questions, output_file):
         renderQuestion();
     }}
     
-    // Check for saved progress on page load
     window.onload = function() {{
         checkSavedProgress();
     }};
@@ -857,6 +868,9 @@ def generate_html(all_questions, output_file):
         
         if (selection === 'all') {{
             filtered = [...allQuestions];
+        }} else if (selection === 'exam') {{
+             // Logic handled in startQuiz or here. Let's return ALL here, process in startQuiz.
+             filtered = [...allQuestions];
         }} else if (selection === '1') {{
             filtered = allQuestions.filter(q => q.level === 1);
         }} else if (selection === '2') {{
@@ -886,9 +900,9 @@ def generate_html(all_questions, output_file):
         return filtered;
     }}
 
-    // Password configuration for each level
     const passwords = {{
         'all': '0107',
+        'exam': '0107',
         '1': '0107',
         '1-1': '0107',
         '1-2': '0107',
@@ -908,7 +922,6 @@ def generate_html(all_questions, output_file):
         const passwordInput = document.getElementById('password-input').value;
         const passwordError = document.getElementById('password-error');
         
-        // Validate password
         const correctPassword = passwords[levelSelect];
         if (passwordInput !== correctPassword) {{
             passwordError.style.display = 'block';
@@ -916,28 +929,54 @@ def generate_html(all_questions, output_file):
             return;
         }}
         
-        // Hide error if password is correct
         passwordError.style.display = 'none';
         document.getElementById('password-input').style.borderColor = '#e2e8f0';
         
-        currentQuestions = getFilteredQuestions(levelSelect);
+        const filtered = getFilteredQuestions(levelSelect);
         
-        if (currentQuestions.length === 0) {{
+        if (filtered.length === 0) {{
             alert("Không tìm thấy câu hỏi cho cấp độ này!");
             return;
         }}
 
+        // Deep Clone
+        currentQuestions = JSON.parse(JSON.stringify(filtered));
+
+        // Shuffle Question ORDER if 'all' or 'exam'
+        if (levelSelect === 'all') {{
+            currentQuestions = shuffleArray(currentQuestions);
+        }} else if (levelSelect === 'exam') {{
+            // Random 50 questions
+            currentQuestions = shuffleArray(currentQuestions).slice(0, 50);
+        }}
+
+        // Shuffle OPTIONS for EVERY question
+        currentQuestions.forEach(q => {{
+            const correctOpt = q.options.find(o => o.key === q.correct_answer);
+            const correctText = correctOpt ? correctOpt.text : null;
+            
+            // Shuffle
+            q.options = shuffleArray(q.options);
+            
+            // Re-label A, B, C, D
+            q.options.forEach((opt, index) => {{
+                opt.key = String.fromCharCode(65 + index);
+            }});
+            
+            // Update correct answer
+            if (correctText) {{
+                const newCorrect = q.options.find(o => o.text === correctText);
+                if (newCorrect) {{
+                    q.correct_answer = newCorrect.key;
+                }}
+            }}
+        }});
+        
         currentIndex = 0;
         score = 0;
         userAnswers = {{}};
         isReviewMode = false;
-        shuffledOptionsMap = {{}};
         currentLevelSelection = levelSelect;
-        
-        currentQuestions.forEach(q => {{
-            const uniqueId = q.id + '_' + q.level;
-            shuffledOptionsMap[uniqueId] = shuffleArray(q.options);
-        }});
         
         document.getElementById('setup-screen').classList.add('card-hidden');
         document.getElementById('result-screen').classList.add('card-hidden');
@@ -956,7 +995,6 @@ def generate_html(all_questions, output_file):
         document.getElementById('setup-screen').classList.remove('card-hidden');
     }}
 
-    // Quick Review Mode - View all questions with answers
     function startQuickReview() {{
         const levelSelect = document.getElementById('level-select').value;
         const passwordInput = document.getElementById('password-input').value;
@@ -970,12 +1008,14 @@ def generate_html(all_questions, output_file):
         }}
         
         passwordError.style.display = 'none';
-        document.getElementById('password-input').style.borderColor = '#e2e8f0';
         
+        // Use standard filtered list (Unshuffled) for Quick Review
+        // Or should we shuffle? Usually quick review implies "Source Order".
+        // Use getFilteredQuestions raw.
         const questions = getFilteredQuestions(levelSelect);
         
         if (questions.length === 0) {{
-            alert("Không tìm thấy câu hỏi cho cấp độ này!");
+            alert("Không tìm thấy câu hỏi!");
             return;
         }}
 
@@ -1007,9 +1047,6 @@ def generate_html(all_questions, output_file):
                 }}
                 html += '<div class="' + optClass + '">';
                 html += '<strong>' + opt.key + '.</strong> ' + opt.text;
-                if (opt.key === q.correct_answer) {{
-                    html += '';
-                }}
                 html += '</div>';
             }});
             html += '</div>';
@@ -1020,9 +1057,11 @@ def generate_html(all_questions, output_file):
         container.innerHTML = html;
     }}
 
-    // Redo Wrong Questions
     function redoWrongQuestions() {{
         const wrongQuestions = currentQuestions.filter(q => {{
+            // Since currentQuestions is already the shuffled session copy, q.id logic uses that.
+            // But wait, if I reload, userAnswers use uniqueId = q.id + '_' + q.level.
+            // My currentQuestions has shuffled options.
             const uniqueId = q.id + '_' + q.level;
             const userAns = userAnswers[uniqueId];
             return userAns && userAns !== q.correct_answer;
@@ -1033,17 +1072,15 @@ def generate_html(all_questions, output_file):
             return;
         }}
         
+        // Shuffle the wrong questions again? Or just Retry?
+        // Usually Retry means keep them as they were.
         currentQuestions = wrongQuestions;
+        
+        // Reset state
         currentIndex = 0;
         score = 0;
         userAnswers = {{}};
         isReviewMode = false;
-        shuffledOptionsMap = {{}};
-        
-        currentQuestions.forEach(q => {{
-            const uniqueId = q.id + '_' + q.level;
-            shuffledOptionsMap[uniqueId] = shuffleArray(q.options);
-        }});
         
         document.getElementById('result-screen').classList.add('card-hidden');
         document.getElementById('quiz-screen').classList.remove('card-hidden');
@@ -1064,9 +1101,7 @@ def generate_html(all_questions, output_file):
     }}
     
     function showResults() {{
-        // Clear saved progress when quiz is completed
         clearProgress();
-        
         document.getElementById('quiz-screen').classList.add('card-hidden');
         document.getElementById('result-screen').classList.remove('card-hidden');
         
@@ -1074,7 +1109,6 @@ def generate_html(all_questions, output_file):
         document.getElementById('final-total').innerText = currentQuestions.length;
         document.getElementById('final-answered').innerText = Object.keys(userAnswers).length;
         
-        // Count wrong answers and show/hide redo button
         const wrongCount = currentQuestions.filter(q => {{
             const uniqueId = q.id + '_' + q.level;
             const userAns = userAnswers[uniqueId];
@@ -1138,9 +1172,6 @@ def generate_html(all_questions, output_file):
                 
                 html += '<div class="' + optClass + '">';
                 html += '<strong>' + opt.key + '.</strong> ' + opt.text;
-                if (opt.key === q.correct_answer) {{
-                    html += '';
-                }}
                 html += '</div>';
             }});
             html += '</div>';
@@ -1158,51 +1189,6 @@ def generate_html(all_questions, output_file):
         container.innerHTML = html;
     }}
 
-    let currentStatusFilter = 'all';
-    
-    function filterQuestions() {{
-        const searchTerm = document.getElementById('search-input').value.toLowerCase();
-        const items = document.querySelectorAll('.q-item');
-        
-        items.forEach(item => {{
-            const text = item.innerText.toLowerCase();
-            const statusMatch = checkStatusFilter(item);
-            
-            if (text.includes(searchTerm) && statusMatch) {{
-                item.style.display = 'block';
-            }} else {{
-                item.style.display = 'none';
-            }}
-        }});
-    }}
-    
-    function checkStatusFilter(item) {{
-        if (currentStatusFilter === 'all') return true;
-        
-        const header = item.querySelector('.q-item-header');
-        if (!header) return true;
-        
-        if (currentStatusFilter === 'correct' && header.classList.contains('correct')) return true;
-        if (currentStatusFilter === 'wrong' && header.classList.contains('wrong')) return true;
-        if (currentStatusFilter === 'unanswered' && header.classList.contains('unanswered')) return true;
-        
-        return false;
-    }}
-    
-    function filterByStatus(status) {{
-        currentStatusFilter = status;
-        
-        // Update active button
-        document.querySelectorAll('.filter-btn').forEach(btn => {{
-            btn.classList.remove('active');
-        }});
-        event.target.classList.add('active');
-        
-        // Re-apply filter
-        filterQuestions();
-    }}
-
-
     function updateStats() {{
         document.getElementById('current-q-num').innerText = currentIndex + 1;
         document.getElementById('total-q-num').innerText = currentQuestions.length;
@@ -1217,11 +1203,9 @@ def generate_html(all_questions, output_file):
         const answeredKey = userAnswers[uniqueId];
         const isAnswered = !!answeredKey;
         
-        const shuffledOptions = shuffledOptionsMap[uniqueId] || q.options;
-
         let optionsHtml = '<div class="options-list">';
         
-        shuffledOptions.forEach(opt => {{
+        q.options.forEach(opt => {{
             let className = 'option-item';
             
             if (isAnswered) {{
@@ -1279,7 +1263,6 @@ def generate_html(all_questions, output_file):
             score++;
         }}
         
-        // Save progress after each answer
         saveProgress();
         
         updateStats();
@@ -1308,6 +1291,47 @@ def generate_html(all_questions, output_file):
             updateStats();
         }}
     }}
+    
+    // Filter functions
+    let currentStatusFilter = 'all';
+    
+    function filterQuestions() {{
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const items = document.querySelectorAll('.q-item');
+        
+        items.forEach(item => {{
+            const text = item.innerText.toLowerCase();
+            const statusMatch = checkStatusFilter(item);
+            
+            if (text.includes(searchTerm) && statusMatch) {{
+                item.style.display = 'block';
+            }} else {{
+                item.style.display = 'none';
+            }}
+        }});
+    }}
+    
+    function checkStatusFilter(item) {{
+        if (currentStatusFilter === 'all') return true;
+        
+        const header = item.querySelector('.q-item-header');
+        if (!header) return true;
+        
+        if (currentStatusFilter === 'correct' && header.classList.contains('correct')) return true;
+        if (currentStatusFilter === 'wrong' && header.classList.contains('wrong')) return true;
+        if (currentStatusFilter === 'unanswered' && header.classList.contains('unanswered')) return true;
+        
+        return false;
+    }}
+    
+    function filterByStatus(status) {{
+        currentStatusFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(btn => {{
+            btn.classList.remove('active');
+        }});
+        event.target.classList.add('active');
+        filterQuestions();
+    }}
 
 </script>
 
@@ -1319,7 +1343,7 @@ def generate_html(all_questions, output_file):
     print(f"Generated {output_file} with {len(all_questions)} questions.")
 
 def main():
-    base_path = r'e:\DeCuongPhapLuat'
+    base_path = BASE_PATH
     files = [
         (os.path.join(base_path, 'CauHoi_CapDo1.md'), 1),
         (os.path.join(base_path, 'CauHoi_CapDo2.md'), 2),

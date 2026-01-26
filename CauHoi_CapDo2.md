@@ -574,13 +574,13 @@ D. 8 hình phạt chính và 6 hình phạt bổ sung
 A. Sự lãnh đạo, chỉ đạo công tác phòng chống tham những chưa được chặt chẽ, sâu sát, thường xuyên.
 B. Phẩm chất của một bộ phận cán bộ, đảng viên bị suy thoái, biến chất.
 C. Đời sống kinh tế thấp, tập quán “miếng trầu là đầu câu chuyện”.
-D. Cả A và B đều đúng.
+D. Cả hai nguyên nhân trên (lãnh đạo và phẩm chất) đều đúng.
 
 **Câu 97.** Nguyên nhân khách quan phát sinh tham nhũng:
 A. Sự lãnh đạo, chỉ đạo công tác phòng chống tham những chưa được chặt chẽ, sâu sát, thường xuyên.
 B. Phẩm chất của một bộ phận cán bộ, đảng viên bị suy thoái, biến chất.
 C. Đời sống kinh tế thấp, tập quán “miếng trầu là đầu câu chuyện”.
-D. Cả A và B đều đúng.
+D. Cả hai nguyên nhân trên (lãnh đạo và phẩm chất) đều đúng.
 
 **Câu 98.** Hậu quả của tham nhũng về mặt chính trị là:
 A. Làm kìm hãm sự phát triển kinh tế của đất nước.
