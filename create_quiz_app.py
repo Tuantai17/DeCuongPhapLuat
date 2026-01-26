@@ -1228,7 +1228,9 @@ def generate_html(all_questions, output_file):
         optionsHtml += '</div>';
 
         let html = '<div class="question-header">';
-        html += '<span class="question-badge">Cấp độ ' + q.level + '</span>';
+        if (currentLevelSelection !== 'all' && currentLevelSelection !== 'exam') {{
+            html += '<span class="question-badge">Cấp độ ' + q.level + '</span>';
+        }}
         html += '<span class="question-id">Câu ' + q.id + '</span>';
         html += '</div>';
         html += '<div class="question-text">' + q.question + '</div>';
